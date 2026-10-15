@@ -96,8 +96,8 @@
                                    VerticalAlignment="Center"
                                    TextWrapping="Wrap"
                                    Foreground="DimGray" />
-                        <Button x:Name="TestOracleButton" Grid.Column="1" Margin="8,0,0,0" Padding="14,7" Content="Tester Oracle" Click="TestOracleButton_Click" />
-                        <Button x:Name="TestPostgresButton" Grid.Column="2" Margin="8,0,0,0" Padding="14,7" Content="Tester PostgreSQL" Click="TestPostgresButton_Click" />
+                        <Button x:Name="TestOracleButton" Grid.Column="1" Margin="8,0,0,0" Padding="14,7" Background="#0078D4" Foreground="White" Content="Tester Oracle" Click="TestOracleButton_Click" />
+                        <Button x:Name="TestPostgresButton" Grid.Column="2" Margin="8,0,0,0" Padding="14,7" Background="#0078D4" Foreground="White" Content="Tester PostgreSQL" Click="TestPostgresButton_Click" />
                         <Button x:Name="SaveSettingsButton" Grid.Column="3" Margin="8,0,0,0" Padding="14,7" Content="Enregistrer" Click="SaveSettingsButton_Click" />
                         <Button x:Name="LoadObjectsButton" Grid.Column="4" Margin="8,0,0,0" Padding="14,7" Content="Charger les objets" Click="LoadObjectsButton_Click" />
                     </Grid>

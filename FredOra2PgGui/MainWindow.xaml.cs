@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace FredOra2PgGui;
 
@@ -9,6 +11,9 @@ public partial class MainWindow : Window
   private readonly SettingsService _settingsService = new();
   private readonly DatabaseMetadataService _metadataService = new();
   private readonly ObservableCollection<string> _logEntries = [];
+  private static readonly Brush PendingConnectionBrush = new SolidColorBrush(Color.FromRgb(0, 120, 212));
+  private static readonly Brush SuccessfulConnectionBrush = new SolidColorBrush(Color.FromRgb(40, 167, 69));
+  private static readonly Brush FailedConnectionBrush = new SolidColorBrush(Color.FromRgb(220, 53, 69));
   private bool _settingsLoaded;
 
   public ObservableCollection<string> LogEntries => _logEntries;
@@ -48,6 +53,7 @@ public partial class MainWindow : Window
   {
     await TestConnectionAsync(
       "Oracle",
+      TestOracleButton,
       () => _metadataService.TestOracleConnectionAsync(CaptureOracleSettings()));
   }
 
@@ -55,6 +61,7 @@ public partial class MainWindow : Window
   {
     await TestConnectionAsync(
       "PostgreSQL",
+      TestPostgresButton,
       () => _metadataService.TestPostgreSqlConnectionAsync(CapturePostgreSqlSettings()));
   }
 
@@ -150,18 +157,21 @@ public partial class MainWindow : Window
     }
   }
 
-  private async Task TestConnectionAsync(string databaseName, Func<Task> testConnection)
+  private async Task TestConnectionAsync(string databaseName, Button testButton, Func<Task> testConnection)
   {
+    testButton.Background = PendingConnectionBrush;
     try
     {
       ConnectionStatusTextBlock.Text = $"Test de connexion à {databaseName}...";
       SetConnectionControlsEnabled(false);
       await testConnection();
+      testButton.Background = SuccessfulConnectionBrush;
       ConnectionStatusTextBlock.Text = $"Connexion à {databaseName} réussie.";
       LoggingService.Info($"Connexion à {databaseName} réussie.");
     }
     catch (Exception exception)
     {
+      testButton.Background = FailedConnectionBrush;
       LoggingService.Error($"Échec de la connexion à {databaseName}.", exception);
       ConnectionStatusTextBlock.Text = $"Échec de la connexion à {databaseName}. Consultez l'onglet Log.";
       MessageBox.Show(
