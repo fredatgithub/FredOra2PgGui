@@ -2,6 +2,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace FredOra2PgGui;
 
@@ -37,8 +38,14 @@ public sealed class SettingsService
   public void Save(AppSettings settings)
   {
     Directory.CreateDirectory(Path.GetDirectoryName(_settingsPath)!);
-    settings.Oracle.EncryptedPassword = EncryptPassword(settings.Oracle.Password);
-    settings.PostgreSql.EncryptedPassword = EncryptPassword(settings.PostgreSql.Password);
+    settings.Oracle.EncryptedHost = Encrypt(settings.Oracle.Host);
+    settings.Oracle.EncryptedDatabase = Encrypt(settings.Oracle.Database);
+    settings.Oracle.EncryptedUsername = Encrypt(settings.Oracle.Username);
+    settings.Oracle.EncryptedPassword = Encrypt(settings.Oracle.Password);
+    settings.PostgreSql.EncryptedHost = Encrypt(settings.PostgreSql.Host);
+    settings.PostgreSql.EncryptedDatabase = Encrypt(settings.PostgreSql.Database);
+    settings.PostgreSql.EncryptedUsername = Encrypt(settings.PostgreSql.Username);
+    settings.PostgreSql.EncryptedPassword = Encrypt(settings.PostgreSql.Password);
     var json = JsonConvert.SerializeObject(settings, Formatting.Indented);
     File.WriteAllText(_settingsPath, json, new UTF8Encoding(false));
   }
@@ -58,38 +65,57 @@ public sealed class SettingsService
 
   private static AppSettings ReadSettings(string path)
   {
-    var json = File.ReadAllText(path);
-    var settings = JsonConvert.DeserializeObject<AppSettings>(json) ?? new AppSettings();
+    var json = JObject.Parse(File.ReadAllText(path));
+    var settings = json.ToObject<AppSettings>() ?? new AppSettings();
     settings.Oracle ??= new DatabaseSettings();
     settings.PostgreSql ??= new DatabaseSettings();
-    settings.Oracle.Password = DecryptPassword(settings.Oracle.EncryptedPassword);
-    settings.PostgreSql.Password = DecryptPassword(settings.PostgreSql.EncryptedPassword);
+    LoadDatabaseSettings(settings.Oracle, json["Oracle"]);
+    LoadDatabaseSettings(settings.PostgreSql, json["PostgreSql"]);
     return settings;
   }
 
-  private static string EncryptPassword(string password)
+  private static void LoadDatabaseSettings(DatabaseSettings settings, JToken? json)
   {
-    if (string.IsNullOrEmpty(password))
+    settings.Host = ReadValue(json, "EncryptedHost", "Host");
+    settings.Database = ReadValue(json, "EncryptedDatabase", "Database");
+    settings.Username = ReadValue(json, "EncryptedUsername", "Username");
+    settings.Password = ReadValue(json, "EncryptedPassword", "Password");
+  }
+
+  private static string ReadValue(JToken? json, string encryptedName, string legacyName)
+  {
+    if (json is JObject databaseJson &&
+        databaseJson.TryGetValue(encryptedName, StringComparison.OrdinalIgnoreCase, out var encryptedValue))
+    {
+      return Decrypt(encryptedValue.Value<string>() ?? string.Empty);
+    }
+
+    return json?[legacyName]?.Value<string>() ?? string.Empty;
+  }
+
+  private static string Encrypt(string value)
+  {
+    if (string.IsNullOrEmpty(value))
     {
       return string.Empty;
     }
 
     var encrypted = ProtectedData.Protect(
-      Encoding.UTF8.GetBytes(password),
+      Encoding.UTF8.GetBytes(value),
       Entropy,
       DataProtectionScope.CurrentUser);
     return Convert.ToBase64String(encrypted);
   }
 
-  private static string DecryptPassword(string encryptedPassword)
+  private static string Decrypt(string encryptedValue)
   {
-    if (string.IsNullOrEmpty(encryptedPassword))
+    if (string.IsNullOrEmpty(encryptedValue))
     {
       return string.Empty;
     }
 
     var decrypted = ProtectedData.Unprotect(
-      Convert.FromBase64String(encryptedPassword),
+      Convert.FromBase64String(encryptedValue),
       Entropy,
       DataProtectionScope.CurrentUser);
     return Encoding.UTF8.GetString(decrypted);

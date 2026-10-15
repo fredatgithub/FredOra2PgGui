@@ -15,10 +15,16 @@ public sealed class AppSettings
 
 public sealed class DatabaseSettings
 {
+  [JsonIgnore]
   public string Host { get; set; } = string.Empty;
   public int Port { get; set; }
+  [JsonIgnore]
   public string Database { get; set; } = string.Empty;
+  [JsonIgnore]
   public string Username { get; set; } = string.Empty;
+  public string EncryptedHost { get; set; } = string.Empty;
+  public string EncryptedDatabase { get; set; } = string.Empty;
+  public string EncryptedUsername { get; set; } = string.Empty;
   public string EncryptedPassword { get; set; } = string.Empty;
 
   [JsonIgnore]

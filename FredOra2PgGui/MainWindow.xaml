@@ -31,7 +31,7 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
-                        <GroupBox Header="Base source Oracle 11g" Padding="12">
+                        <GroupBox Header="Database source Oracle" Padding="12">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="130" />
