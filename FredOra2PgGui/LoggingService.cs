@@ -16,7 +16,7 @@ public static class LoggingService
 
   public static void Initialize()
   {
-    var directory = SettingsService.GetLocalDirectory();
+    var directory = SettingsService.GetApplicationDirectory();
     Directory.CreateDirectory(directory);
 
     var layout = new PatternLayout
@@ -42,7 +42,7 @@ public static class LoggingService
 
   public static IReadOnlyList<string> ReadRecentEntries(int maximumEntries = 500)
   {
-    var path = Path.Combine(SettingsService.GetLocalDirectory(), "fredora2pg.log");
+    var path = Path.Combine(SettingsService.GetApplicationDirectory(), "fredora2pg.log");
     if (!File.Exists(path) || maximumEntries <= 0)
     {
       return Array.Empty<string>();

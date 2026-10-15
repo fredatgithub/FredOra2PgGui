@@ -12,23 +12,26 @@ public sealed class SettingsService
 
   public SettingsService()
   {
-    _settingsPath = Path.Combine(GetLocalDirectory(), "settings.json");
+    _settingsPath = Path.Combine(GetApplicationDirectory(), "settings.json");
   }
 
   public AppSettings Load()
   {
     if (!File.Exists(_settingsPath))
     {
+      var previousSettingsPath = GetPreviousSettingsPath();
+      if (File.Exists(previousSettingsPath))
+      {
+        var previousSettings = ReadSettings(previousSettingsPath);
+        Save(previousSettings);
+        File.Delete(previousSettingsPath);
+        return previousSettings;
+      }
+
       return new AppSettings();
     }
 
-    var json = File.ReadAllText(_settingsPath);
-    var settings = JsonConvert.DeserializeObject<AppSettings>(json) ?? new AppSettings();
-    settings.Oracle ??= new DatabaseSettings();
-    settings.PostgreSql ??= new DatabaseSettings();
-    settings.Oracle.Password = DecryptPassword(settings.Oracle.EncryptedPassword);
-    settings.PostgreSql.Password = DecryptPassword(settings.PostgreSql.EncryptedPassword);
-    return settings;
+    return ReadSettings(_settingsPath);
   }
 
   public void Save(AppSettings settings)
@@ -40,11 +43,28 @@ public sealed class SettingsService
     File.WriteAllText(_settingsPath, json, new UTF8Encoding(false));
   }
 
-  public static string GetLocalDirectory()
+  public static string GetApplicationDirectory()
+  {
+    return AppContext.BaseDirectory;
+  }
+
+  private static string GetPreviousSettingsPath()
   {
     return Path.Combine(
       Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-      "FredOra2PgGui");
+      "FredOra2PgGui",
+      "settings.json");
+  }
+
+  private static AppSettings ReadSettings(string path)
+  {
+    var json = File.ReadAllText(path);
+    var settings = JsonConvert.DeserializeObject<AppSettings>(json) ?? new AppSettings();
+    settings.Oracle ??= new DatabaseSettings();
+    settings.PostgreSql ??= new DatabaseSettings();
+    settings.Oracle.Password = DecryptPassword(settings.Oracle.EncryptedPassword);
+    settings.PostgreSql.Password = DecryptPassword(settings.PostgreSql.EncryptedPassword);
+    return settings;
   }
 
   private static string EncryptPassword(string password)
