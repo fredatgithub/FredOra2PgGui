@@ -8,5 +8,4 @@ namespace FredOra2PgGui
   public partial class App: Application
   {
   }
-
 }
