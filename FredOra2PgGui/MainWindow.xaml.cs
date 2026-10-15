@@ -11,9 +11,9 @@ public partial class MainWindow : Window
   private readonly SettingsService _settingsService = new();
   private readonly DatabaseMetadataService _metadataService = new();
   private readonly ObservableCollection<string> _logEntries = [];
-  private static readonly Brush PendingConnectionBrush = new SolidColorBrush(Color.FromRgb(0, 120, 212));
-  private static readonly Brush SuccessfulConnectionBrush = new SolidColorBrush(Color.FromRgb(40, 167, 69));
-  private static readonly Brush FailedConnectionBrush = new SolidColorBrush(Color.FromRgb(220, 53, 69));
+  private static readonly Brush PendingActionBrush = new SolidColorBrush(Color.FromRgb(0, 120, 212));
+  private static readonly Brush SuccessfulActionBrush = new SolidColorBrush(Color.FromRgb(40, 167, 69));
+  private static readonly Brush FailedActionBrush = new SolidColorBrush(Color.FromRgb(220, 53, 69));
   private bool _settingsLoaded;
 
   public ObservableCollection<string> LogEntries => _logEntries;
@@ -67,14 +67,17 @@ public partial class MainWindow : Window
 
   private void SaveSettingsButton_Click(object sender, RoutedEventArgs e)
   {
+    SaveSettingsButton.Background = PendingActionBrush;
     try
     {
       SaveCurrentSettings();
       _settingsLoaded = true;
+      SaveSettingsButton.Background = SuccessfulActionBrush;
       ConnectionStatusTextBlock.Text = "Paramètres enregistrés localement.";
     }
     catch (Exception exception)
     {
+      SaveSettingsButton.Background = FailedActionBrush;
       LoggingService.Error("Impossible d'enregistrer les paramètres.", exception);
       ConnectionStatusTextBlock.Text = "Échec de l'enregistrement des paramètres.";
       MessageBox.Show(
@@ -88,6 +91,7 @@ public partial class MainWindow : Window
 
   private async void LoadObjectsButton_Click(object sender, RoutedEventArgs e)
   {
+    LoadObjectsButton.Background = PendingActionBrush;
     try
     {
       var oracle = CaptureOracleSettings();
@@ -112,11 +116,13 @@ public partial class MainWindow : Window
       SequencesDataGrid.ItemsSource = CreatePairs(results[DatabaseObjectType.Sequences]);
 
       var count = results.Values.Sum(result => result.Source.Count + result.Target.Count);
+      LoadObjectsButton.Background = SuccessfulActionBrush;
       ConnectionStatusTextBlock.Text = $"Inventaire chargé : {count} objets trouvés au total.";
       LoggingService.Info($"Inventaire des objets chargé ({count} objets).");
     }
     catch (Exception exception)
     {
+      LoadObjectsButton.Background = FailedActionBrush;
       LoggingService.Error("Échec du chargement des objets des bases.", exception);
       ConnectionStatusTextBlock.Text = "Échec du chargement des objets. Consultez l'onglet Log.";
       MessageBox.Show(
@@ -159,19 +165,19 @@ public partial class MainWindow : Window
 
   private async Task TestConnectionAsync(string databaseName, Button testButton, Func<Task> testConnection)
   {
-    testButton.Background = PendingConnectionBrush;
+    testButton.Background = PendingActionBrush;
     try
     {
       ConnectionStatusTextBlock.Text = $"Test de connexion à {databaseName}...";
       SetConnectionControlsEnabled(false);
       await testConnection();
-      testButton.Background = SuccessfulConnectionBrush;
+      testButton.Background = SuccessfulActionBrush;
       ConnectionStatusTextBlock.Text = $"Connexion à {databaseName} réussie.";
       LoggingService.Info($"Connexion à {databaseName} réussie.");
     }
     catch (Exception exception)
     {
-      testButton.Background = FailedConnectionBrush;
+      testButton.Background = FailedActionBrush;
       LoggingService.Error($"Échec de la connexion à {databaseName}.", exception);
       ConnectionStatusTextBlock.Text = $"Échec de la connexion à {databaseName}. Consultez l'onglet Log.";
       MessageBox.Show(

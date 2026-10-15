@@ -9,7 +9,7 @@ It is a free tool used to migrate an Oracle database to a PostgreSQL compatible 
 
 L'application cible `net9.0-windows`. L'onglet **Connexions** permet de saisir et tester une connexion Oracle (hôte, port, nom du service) et une connexion PostgreSQL. **Enregistrer** conserve les paramètres ; ils sont également sauvegardés à la fermeture.
 
-Les boutons de test de connexion sont bleus au démarrage, verts après un test réussi et rouges après un échec. Ils repassent au bleu pendant un nouveau test.
+Les boutons d'action sont bleus au démarrage et pendant l'opération, verts après une réussite et rouges après un échec. Cela s'applique aux tests de connexion, à l'enregistrement et au chargement des objets.
 
 Les mots de passe du fichier de paramètres sont protégés par DPAPI, avec la portée du compte Windows courant. Le fichier `settings.json` et le journal `fredora2pg.log` sont placés dans `%LOCALAPPDATA%\FredOra2PgGui`. Les dimensions et la position de la fenêtre sont enregistrées dans le même fichier JSON.
 
