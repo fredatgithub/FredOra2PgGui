@@ -22,20 +22,26 @@ public sealed class DatabaseMetadataService
     await using var connection = new OracleConnection(BuildOracleConnectionString(settings));
     await connection.OpenAsync();
     await using var command = connection.CreateCommand();
+    var ownerFilter = string.IsNullOrWhiteSpace(settings.Owner) ? string.Empty : " AND {0} = :owner";
     command.CommandText = objectType switch
     {
       DatabaseObjectType.Tables =>
-        "SELECT owner || '.' || table_name FROM all_tables WHERE owner NOT IN ('SYS', 'SYSTEM') ORDER BY owner, table_name",
+        $"SELECT owner || '.' || table_name FROM all_tables WHERE owner NOT IN ('SYS', 'SYSTEM'){string.Format(ownerFilter, "owner")} ORDER BY owner, table_name",
       DatabaseObjectType.Views =>
-        "SELECT owner || '.' || view_name FROM all_views WHERE owner NOT IN ('SYS', 'SYSTEM') ORDER BY owner, view_name",
+        $"SELECT owner || '.' || view_name FROM all_views WHERE owner NOT IN ('SYS', 'SYSTEM'){string.Format(ownerFilter, "owner")} ORDER BY owner, view_name",
       DatabaseObjectType.Triggers =>
-        "SELECT owner || '.' || trigger_name FROM all_triggers WHERE owner NOT IN ('SYS', 'SYSTEM') ORDER BY owner, trigger_name",
+        $"SELECT owner || '.' || trigger_name FROM all_triggers WHERE owner NOT IN ('SYS', 'SYSTEM'){string.Format(ownerFilter, "owner")} ORDER BY owner, trigger_name",
       DatabaseObjectType.Procedures =>
-        "SELECT DISTINCT owner || '.' || procedure_name FROM all_procedures WHERE procedure_name IS NOT NULL AND owner NOT IN ('SYS', 'SYSTEM') ORDER BY owner || '.' || procedure_name",
+        $"SELECT DISTINCT owner || '.' || procedure_name FROM all_procedures WHERE procedure_name IS NOT NULL AND owner NOT IN ('SYS', 'SYSTEM'){string.Format(ownerFilter, "owner")} ORDER BY owner || '.' || procedure_name",
       DatabaseObjectType.Sequences =>
-        "SELECT sequence_owner || '.' || sequence_name FROM all_sequences WHERE sequence_owner NOT IN ('SYS', 'SYSTEM') ORDER BY sequence_owner, sequence_name",
+        $"SELECT sequence_owner || '.' || sequence_name FROM all_sequences WHERE sequence_owner NOT IN ('SYS', 'SYSTEM'){string.Format(ownerFilter, "sequence_owner")} ORDER BY sequence_owner, sequence_name",
       _ => throw new ArgumentOutOfRangeException(nameof(objectType))
     };
+
+    if (!string.IsNullOrWhiteSpace(settings.Owner))
+    {
+      command.Parameters.Add(new OracleParameter("owner", settings.Owner.Trim()));
+    }
 
     return await ReadNamesAsync(command);
   }
@@ -47,20 +53,26 @@ public sealed class DatabaseMetadataService
     await using var connection = new NpgsqlConnection(BuildPostgreSqlConnectionString(settings));
     await connection.OpenAsync();
     await using var command = connection.CreateCommand();
+    var schemaFilter = string.IsNullOrWhiteSpace(settings.Schema) ? string.Empty : " AND {0} = @schema";
     command.CommandText = objectType switch
     {
       DatabaseObjectType.Tables =>
-        "SELECT table_schema || '.' || table_name FROM information_schema.tables WHERE table_type = 'BASE TABLE' AND table_schema NOT IN ('pg_catalog', 'information_schema') ORDER BY table_schema, table_name",
+        $"SELECT table_schema || '.' || table_name FROM information_schema.tables WHERE table_type = 'BASE TABLE' AND table_schema NOT IN ('pg_catalog', 'information_schema'){string.Format(schemaFilter, "table_schema")} ORDER BY table_schema, table_name",
       DatabaseObjectType.Views =>
-        "SELECT table_schema || '.' || table_name FROM information_schema.views WHERE table_schema NOT IN ('pg_catalog', 'information_schema') ORDER BY table_schema, table_name",
+        $"SELECT table_schema || '.' || table_name FROM information_schema.views WHERE table_schema NOT IN ('pg_catalog', 'information_schema'){string.Format(schemaFilter, "table_schema")} ORDER BY table_schema, table_name",
       DatabaseObjectType.Triggers =>
-        "SELECT DISTINCT event_object_schema || '.' || trigger_name FROM information_schema.triggers WHERE trigger_schema NOT IN ('pg_catalog', 'information_schema') ORDER BY event_object_schema || '.' || trigger_name",
+        $"SELECT DISTINCT event_object_schema || '.' || trigger_name FROM information_schema.triggers WHERE trigger_schema NOT IN ('pg_catalog', 'information_schema'){string.Format(schemaFilter, "event_object_schema")} ORDER BY event_object_schema || '.' || trigger_name",
       DatabaseObjectType.Procedures =>
-        "SELECT routine_schema || '.' || routine_name FROM information_schema.routines WHERE routine_type = 'PROCEDURE' AND routine_schema NOT IN ('pg_catalog', 'information_schema') ORDER BY routine_schema, routine_name",
+        $"SELECT routine_schema || '.' || routine_name FROM information_schema.routines WHERE routine_type = 'PROCEDURE' AND routine_schema NOT IN ('pg_catalog', 'information_schema'){string.Format(schemaFilter, "routine_schema")} ORDER BY routine_schema, routine_name",
       DatabaseObjectType.Sequences =>
-        "SELECT sequence_schema || '.' || sequence_name FROM information_schema.sequences WHERE sequence_schema NOT IN ('pg_catalog', 'information_schema') ORDER BY sequence_schema, sequence_name",
+        $"SELECT sequence_schema || '.' || sequence_name FROM information_schema.sequences WHERE sequence_schema NOT IN ('pg_catalog', 'information_schema'){string.Format(schemaFilter, "sequence_schema")} ORDER BY sequence_schema, sequence_name",
       _ => throw new ArgumentOutOfRangeException(nameof(objectType))
     };
+
+    if (!string.IsNullOrWhiteSpace(settings.Schema))
+    {
+      command.Parameters.AddWithValue("schema", settings.Schema.Trim());
+    }
 
     return await ReadNamesAsync(command);
   }

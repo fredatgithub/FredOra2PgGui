@@ -41,10 +41,14 @@ public sealed class SettingsService
     settings.Oracle.EncryptedHost = Encrypt(settings.Oracle.Host);
     settings.Oracle.EncryptedDatabase = Encrypt(settings.Oracle.Database);
     settings.Oracle.EncryptedUsername = Encrypt(settings.Oracle.Username);
+    settings.Oracle.EncryptedOwner = Encrypt(settings.Oracle.Owner);
+    settings.Oracle.EncryptedSchema = Encrypt(settings.Oracle.Schema);
     settings.Oracle.EncryptedPassword = Encrypt(settings.Oracle.Password);
     settings.PostgreSql.EncryptedHost = Encrypt(settings.PostgreSql.Host);
     settings.PostgreSql.EncryptedDatabase = Encrypt(settings.PostgreSql.Database);
     settings.PostgreSql.EncryptedUsername = Encrypt(settings.PostgreSql.Username);
+    settings.PostgreSql.EncryptedOwner = Encrypt(settings.PostgreSql.Owner);
+    settings.PostgreSql.EncryptedSchema = Encrypt(settings.PostgreSql.Schema);
     settings.PostgreSql.EncryptedPassword = Encrypt(settings.PostgreSql.Password);
     var json = JsonConvert.SerializeObject(settings, Formatting.Indented);
     File.WriteAllText(_settingsPath, json, new UTF8Encoding(false));
@@ -79,6 +83,8 @@ public sealed class SettingsService
     settings.Host = ReadValue(json, "EncryptedHost", "Host");
     settings.Database = ReadValue(json, "EncryptedDatabase", "Database");
     settings.Username = ReadValue(json, "EncryptedUsername", "Username");
+    settings.Owner = ReadValue(json, "EncryptedOwner", "Owner");
+    settings.Schema = ReadValue(json, "EncryptedSchema", "Schema");
     settings.Password = ReadValue(json, "EncryptedPassword", "Password");
   }
 

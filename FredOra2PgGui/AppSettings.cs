@@ -22,9 +22,15 @@ public sealed class DatabaseSettings
   public string Database { get; set; } = string.Empty;
   [JsonIgnore]
   public string Username { get; set; } = string.Empty;
+  [JsonIgnore]
+  public string Owner { get; set; } = string.Empty;
+  [JsonIgnore]
+  public string Schema { get; set; } = string.Empty;
   public string EncryptedHost { get; set; } = string.Empty;
   public string EncryptedDatabase { get; set; } = string.Empty;
   public string EncryptedUsername { get; set; } = string.Empty;
+  public string EncryptedOwner { get; set; } = string.Empty;
+  public string EncryptedSchema { get; set; } = string.Empty;
   public string EncryptedPassword { get; set; } = string.Empty;
 
   [JsonIgnore]

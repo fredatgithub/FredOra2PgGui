@@ -244,6 +244,7 @@ public partial class MainWindow : Window
       Host = OracleHostTextBox.Text.Trim(),
       Port = ReadPort(OraclePortTextBox.Text, "Oracle"),
       Database = OracleServiceTextBox.Text.Trim(),
+      Owner = OracleOwnerTextBox.Text.Trim(),
       Username = OracleUsernameTextBox.Text.Trim(),
       Password = OraclePasswordBox.Password
     };
@@ -256,6 +257,7 @@ public partial class MainWindow : Window
       Host = PostgresHostTextBox.Text.Trim(),
       Port = ReadPort(PostgresPortTextBox.Text, "PostgreSQL"),
       Database = PostgresDatabaseTextBox.Text.Trim(),
+      Schema = PostgresSchemaTextBox.Text.Trim(),
       Username = PostgresUsernameTextBox.Text.Trim(),
       Password = PostgresPasswordBox.Password
     };
@@ -277,12 +279,14 @@ public partial class MainWindow : Window
     OracleHostTextBox.Text = settings.Oracle.Host;
     OraclePortTextBox.Text = settings.Oracle.Port > 0 ? settings.Oracle.Port.ToString(CultureInfo.InvariantCulture) : "1521";
     OracleServiceTextBox.Text = settings.Oracle.Database;
+    OracleOwnerTextBox.Text = settings.Oracle.Owner;
     OracleUsernameTextBox.Text = settings.Oracle.Username;
     OraclePasswordBox.Password = settings.Oracle.Password;
 
     PostgresHostTextBox.Text = settings.PostgreSql.Host;
     PostgresPortTextBox.Text = settings.PostgreSql.Port > 0 ? settings.PostgreSql.Port.ToString(CultureInfo.InvariantCulture) : "5432";
     PostgresDatabaseTextBox.Text = settings.PostgreSql.Database;
+    PostgresSchemaTextBox.Text = settings.PostgreSql.Schema;
     PostgresUsernameTextBox.Text = settings.PostgreSql.Username;
     PostgresPasswordBox.Password = settings.PostgreSql.Password;
   }
@@ -329,11 +333,13 @@ public partial class MainWindow : Window
     OracleHostTextBox.IsEnabled = enabled;
     OraclePortTextBox.IsEnabled = enabled;
     OracleServiceTextBox.IsEnabled = enabled;
+    OracleOwnerTextBox.IsEnabled = enabled;
     OracleUsernameTextBox.IsEnabled = enabled;
     OraclePasswordBox.IsEnabled = enabled;
     PostgresHostTextBox.IsEnabled = enabled;
     PostgresPortTextBox.IsEnabled = enabled;
     PostgresDatabaseTextBox.IsEnabled = enabled;
+    PostgresSchemaTextBox.IsEnabled = enabled;
     PostgresUsernameTextBox.IsEnabled = enabled;
     PostgresPasswordBox.IsEnabled = enabled;
   }

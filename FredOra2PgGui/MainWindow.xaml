@@ -43,6 +43,7 @@
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
                                 <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,6" VerticalAlignment="Center" Text="Hôte" />
                                 <TextBox x:Name="OracleHostTextBox" Grid.Row="0" Grid.Column="1" Margin="0,4" />
@@ -50,10 +51,12 @@
                                 <TextBox x:Name="OraclePortTextBox" Grid.Row="1" Grid.Column="1" Margin="0,4" Text="1521" />
                                 <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,6" VerticalAlignment="Center" Text="Service Oracle" />
                                 <TextBox x:Name="OracleServiceTextBox" Grid.Row="2" Grid.Column="1" Margin="0,4" />
-                                <TextBlock Grid.Row="3" Grid.Column="0" Margin="0,6" VerticalAlignment="Center" Text="Utilisateur" />
-                                <TextBox x:Name="OracleUsernameTextBox" Grid.Row="3" Grid.Column="1" Margin="0,4" />
-                                <TextBlock Grid.Row="4" Grid.Column="0" Margin="0,6" VerticalAlignment="Center" Text="Mot de passe" />
-                                <PasswordBox x:Name="OraclePasswordBox" Grid.Row="4" Grid.Column="1" Margin="0,4" />
+                                <TextBlock Grid.Row="3" Grid.Column="0" Margin="0,6" VerticalAlignment="Center" Text="Propriétaire (owner)" />
+                                <TextBox x:Name="OracleOwnerTextBox" Grid.Row="3" Grid.Column="1" Margin="0,4" />
+                                <TextBlock Grid.Row="4" Grid.Column="0" Margin="0,6" VerticalAlignment="Center" Text="Utilisateur" />
+                                <TextBox x:Name="OracleUsernameTextBox" Grid.Row="4" Grid.Column="1" Margin="0,4" />
+                                <TextBlock Grid.Row="5" Grid.Column="0" Margin="0,6" VerticalAlignment="Center" Text="Mot de passe" />
+                                <PasswordBox x:Name="OraclePasswordBox" Grid.Row="5" Grid.Column="1" Margin="0,4" />
                             </Grid>
                         </GroupBox>
 
@@ -69,6 +72,7 @@
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
                                 <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,6" VerticalAlignment="Center" Text="Hôte" />
                                 <TextBox x:Name="PostgresHostTextBox" Grid.Row="0" Grid.Column="1" Margin="0,4" />
@@ -76,10 +80,12 @@
                                 <TextBox x:Name="PostgresPortTextBox" Grid.Row="1" Grid.Column="1" Margin="0,4" Text="5432" />
                                 <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,6" VerticalAlignment="Center" Text="Base de données" />
                                 <TextBox x:Name="PostgresDatabaseTextBox" Grid.Row="2" Grid.Column="1" Margin="0,4" />
-                                <TextBlock Grid.Row="3" Grid.Column="0" Margin="0,6" VerticalAlignment="Center" Text="Utilisateur" />
-                                <TextBox x:Name="PostgresUsernameTextBox" Grid.Row="3" Grid.Column="1" Margin="0,4" />
-                                <TextBlock Grid.Row="4" Grid.Column="0" Margin="0,6" VerticalAlignment="Center" Text="Mot de passe" />
-                                <PasswordBox x:Name="PostgresPasswordBox" Grid.Row="4" Grid.Column="1" Margin="0,4" />
+                                <TextBlock Grid.Row="3" Grid.Column="0" Margin="0,6" VerticalAlignment="Center" Text="Schéma" />
+                                <TextBox x:Name="PostgresSchemaTextBox" Grid.Row="3" Grid.Column="1" Margin="0,4" />
+                                <TextBlock Grid.Row="4" Grid.Column="0" Margin="0,6" VerticalAlignment="Center" Text="Utilisateur" />
+                                <TextBox x:Name="PostgresUsernameTextBox" Grid.Row="4" Grid.Column="1" Margin="0,4" />
+                                <TextBlock Grid.Row="5" Grid.Column="0" Margin="0,6" VerticalAlignment="Center" Text="Mot de passe" />
+                                <PasswordBox x:Name="PostgresPasswordBox" Grid.Row="5" Grid.Column="1" Margin="0,4" />
                             </Grid>
                         </GroupBox>
                     </Grid>
