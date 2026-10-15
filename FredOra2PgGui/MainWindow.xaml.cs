@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -21,6 +22,12 @@ public partial class MainWindow : Window
   public MainWindow()
   {
     InitializeComponent();
+    var version = Assembly.GetExecutingAssembly().GetName().Version;
+    if (version is not null)
+    {
+      Title = $"Fred ora2pg GUI - v{version.Major}.{version.Minor}.{Math.Max(version.Build, 0)}";
+    }
+
     DataContext = this;
 
     LoggingService.Initialize();
