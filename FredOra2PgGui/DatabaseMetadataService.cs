@@ -31,7 +31,7 @@ public sealed class DatabaseMetadataService
       DatabaseObjectType.Triggers =>
         "SELECT owner || '.' || trigger_name FROM all_triggers WHERE owner NOT IN ('SYS', 'SYSTEM') ORDER BY owner, trigger_name",
       DatabaseObjectType.Procedures =>
-        "SELECT DISTINCT owner || '.' || procedure_name FROM all_procedures WHERE procedure_name IS NOT NULL AND owner NOT IN ('SYS', 'SYSTEM') ORDER BY owner, procedure_name",
+        "SELECT DISTINCT owner || '.' || procedure_name FROM all_procedures WHERE procedure_name IS NOT NULL AND owner NOT IN ('SYS', 'SYSTEM') ORDER BY owner || '.' || procedure_name",
       DatabaseObjectType.Sequences =>
         "SELECT sequence_owner || '.' || sequence_name FROM all_sequences WHERE sequence_owner NOT IN ('SYS', 'SYSTEM') ORDER BY sequence_owner, sequence_name",
       _ => throw new ArgumentOutOfRangeException(nameof(objectType))
@@ -54,7 +54,7 @@ public sealed class DatabaseMetadataService
       DatabaseObjectType.Views =>
         "SELECT table_schema || '.' || table_name FROM information_schema.views WHERE table_schema NOT IN ('pg_catalog', 'information_schema') ORDER BY table_schema, table_name",
       DatabaseObjectType.Triggers =>
-        "SELECT DISTINCT event_object_schema || '.' || trigger_name FROM information_schema.triggers WHERE trigger_schema NOT IN ('pg_catalog', 'information_schema') ORDER BY event_object_schema, trigger_name",
+        "SELECT DISTINCT event_object_schema || '.' || trigger_name FROM information_schema.triggers WHERE trigger_schema NOT IN ('pg_catalog', 'information_schema') ORDER BY event_object_schema || '.' || trigger_name",
       DatabaseObjectType.Procedures =>
         "SELECT routine_schema || '.' || routine_name FROM information_schema.routines WHERE routine_type = 'PROCEDURE' AND routine_schema NOT IN ('pg_catalog', 'information_schema') ORDER BY routine_schema, routine_name",
       DatabaseObjectType.Sequences =>

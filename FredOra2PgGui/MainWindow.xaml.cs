@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace FredOra2PgGui;
@@ -339,6 +340,43 @@ public partial class MainWindow : Window
     if (LogListBox.Items.Count > 0)
     {
       LogListBox.ScrollIntoView(LogListBox.Items[LogListBox.Items.Count - 1]);
+    }
+  }
+
+  private void LogListBox_PreviewKeyDown(object sender, KeyEventArgs e)
+  {
+    if (e.Key == Key.C && Keyboard.Modifiers == ModifierKeys.Control)
+    {
+      CopySelectedLogLine();
+      e.Handled = true;
+    }
+  }
+
+  private void CopyLogLineMenuItem_Click(object sender, RoutedEventArgs e)
+  {
+    CopySelectedLogLine();
+  }
+
+  private void CopySelectedLogLine()
+  {
+    if (LogListBox.SelectedItem is not string selectedLine)
+    {
+      return;
+    }
+
+    try
+    {
+      Clipboard.SetText(selectedLine);
+    }
+    catch (Exception exception)
+    {
+      LoggingService.Error("Impossible de copier la ligne du journal.", exception);
+      MessageBox.Show(
+        this,
+        $"La ligne du journal n'a pas pu être copiée.\n\n{exception.Message}",
+        "Copie du journal",
+        MessageBoxButton.OK,
+        MessageBoxImage.Error);
     }
   }
 

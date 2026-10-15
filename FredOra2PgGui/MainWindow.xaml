@@ -155,8 +155,18 @@
                          ItemsSource="{Binding LogEntries}"
                          FontFamily="Consolas"
                          FontSize="12"
+                         SelectionMode="Single"
+                         PreviewKeyDown="LogListBox_PreviewKeyDown"
                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                         ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <ListBox.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Copier la ligne"
+                                      InputGestureText="Ctrl+C"
+                                      Click="CopyLogLineMenuItem_Click" />
+                        </ContextMenu>
+                    </ListBox.ContextMenu>
+                </ListBox>
             </TabItem>
         </TabControl>
     </Grid>
