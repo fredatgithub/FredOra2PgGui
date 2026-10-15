@@ -13,4 +13,4 @@ Les boutons d'action sont bleus au démarrage et pendant l'opération, verts apr
 
 Les mots de passe du fichier de paramètres sont protégés par DPAPI, avec la portée du compte Windows courant. Le fichier `settings.json` et le journal `fredora2pg.log` sont placés dans `%LOCALAPPDATA%\FredOra2PgGui`. Les dimensions et la position de la fenêtre sont enregistrées dans le même fichier JSON.
 
-Le bouton **Charger les objets** interroge les deux bases et remplit les onglets Tables, Vues, Déclencheurs, Procédures stockées et Séquences. Les noms source et cible sont affichés dans deux colonnes indépendantes ; cet inventaire ne réalise pas encore de comparaison ni de migration.
+Le bouton **Charger les objets** affiche une fenêtre d'attente pendant qu'il interroge les deux bases et remplit les onglets Tables, Vues, Déclencheurs, Procédures stockées et Séquences. Les noms source et cible sont affichés dans deux colonnes indépendantes ; cet inventaire ne réalise pas encore de comparaison ni de migration.

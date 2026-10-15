@@ -100,12 +100,21 @@ public partial class MainWindow : Window
   private async void LoadObjectsButton_Click(object sender, RoutedEventArgs e)
   {
     LoadObjectsButton.Background = PendingActionBrush;
+    var waitWindow = new PleaseWaitWindow
+    {
+      Owner = this
+    };
+    var waitWindowShown = false;
+
     try
     {
       var oracle = CaptureOracleSettings();
       var postgreSql = CapturePostgreSqlSettings();
       ConnectionStatusTextBlock.Text = "Chargement des objets des deux bases...";
       SetConnectionControlsEnabled(false);
+      waitWindow.Show();
+      waitWindowShown = true;
+      IsEnabled = false;
 
       var objectTypes = Enum.GetValues<DatabaseObjectType>();
       var results = new Dictionary<DatabaseObjectType, (IReadOnlyList<string> Source, IReadOnlyList<string> Target)>();
@@ -142,6 +151,12 @@ public partial class MainWindow : Window
     }
     finally
     {
+      if (waitWindowShown)
+      {
+        waitWindow.Close();
+      }
+
+      IsEnabled = true;
       SetConnectionControlsEnabled(true);
     }
   }
