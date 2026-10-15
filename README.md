@@ -1,1 +1,1 @@
-# FredOra2PgGui
+# Fred Ora2Pg Gui application
