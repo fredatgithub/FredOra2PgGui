@@ -230,6 +230,72 @@
                 </Grid>
             </TabItem>
 
+            <TabItem Header="Scripts Auto">
+                <Grid Margin="14">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                               Margin="0,0,0,10"
+                               TextWrapping="Wrap"
+                               Text="Générez automatiquement les scripts de migration à partir de la connexion Oracle de l’onglet Connexions. La création de la base cible est produite séparément ; les autres scripts sont générés par ora2pg." />
+
+                    <Grid Grid.Row="1" Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Margin="0,5,10,5" VerticalAlignment="Center" Text="Dossier de sortie" />
+                        <TextBox x:Name="AutoScriptsOutputDirectoryTextBox" Grid.Column="1" Margin="0,3" />
+                        <Button Grid.Column="2" Margin="8,3,0,3" Padding="10,4" Content="Parcourir..." Click="BrowseAutoScriptsOutputDirectoryButton_Click" />
+                        <Button x:Name="RefreshAutoScriptsButton" Grid.Column="3" Margin="8,3,0,3" Padding="10,4" Content="Actualiser la liste" Click="RefreshAutoScriptsButton_Click" />
+                    </Grid>
+
+                    <GroupBox Grid.Row="2" Header="Scripts à générer" Padding="8" Margin="0,0,0,10">
+                        <WrapPanel>
+                            <CheckBox x:Name="CreateDatabaseScriptCheckBox" Margin="8,4" Content="Création de la base cible" IsChecked="True" />
+                            <CheckBox x:Name="CreateSchemaScriptCheckBox" Margin="8,4" Content="Création du schéma cible" IsChecked="True" />
+                            <CheckBox x:Name="AutoTablesCheckBox" Margin="8,4" Content="Tables" IsChecked="True" />
+                            <CheckBox x:Name="AutoSequencesCheckBox" Margin="8,4" Content="Séquences" IsChecked="True" />
+                            <CheckBox x:Name="AutoViewsCheckBox" Margin="8,4" Content="Vues" IsChecked="True" />
+                            <CheckBox x:Name="AutoTypesCheckBox" Margin="8,4" Content="Types" IsChecked="True" />
+                            <CheckBox x:Name="AutoFunctionsCheckBox" Margin="8,4" Content="Fonctions" IsChecked="True" />
+                            <CheckBox x:Name="AutoProceduresCheckBox" Margin="8,4" Content="Procédures" IsChecked="True" />
+                            <CheckBox x:Name="AutoPackagesCheckBox" Margin="8,4" Content="Packages" IsChecked="True" />
+                            <CheckBox x:Name="AutoTriggersCheckBox" Margin="8,4" Content="Déclencheurs" IsChecked="True" />
+                            <CheckBox x:Name="AutoInsertDataCheckBox" Margin="8,4" Content="Insertion des données (INSERT)" IsChecked="True" />
+                            <Button x:Name="CreateAutoScriptsButton"
+                                    Margin="8,4"
+                                    Padding="14,4"
+                                    Background="#0078D4"
+                                    Foreground="White"
+                                    Content="Créer les scripts"
+                                    Click="CreateAutoScriptsButton_Click" />
+                        </WrapPanel>
+                    </GroupBox>
+
+                    <DataGrid x:Name="AutoScriptsDataGrid"
+                              Grid.Row="3"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              CanUserAddRows="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Nom" Binding="{Binding Name}" Width="1.2*" />
+                            <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="Auto" />
+                            <DataGridTextColumn Header="Emplacement" Binding="{Binding Location}" Width="2*" />
+                            <DataGridTextColumn Header="Taille" Binding="{Binding Size}" Width="Auto" />
+                            <DataGridTextColumn Header="Modifié le" Binding="{Binding Modified, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Width="Auto" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
             <TabItem Header="Log">
                 <ListBox x:Name="LogListBox"
                          Margin="14"

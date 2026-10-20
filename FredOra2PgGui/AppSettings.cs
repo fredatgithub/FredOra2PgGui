@@ -15,6 +15,7 @@ public sealed class AppSettings
   public string Ora2PgConfigFile { get; set; } = string.Empty;
   public string ScriptsOutputDirectory { get; set; } = string.Empty;
   public string Ora2PgExportType { get; set; } = "TABLE";
+  public string AutoScriptsOutputDirectory { get; set; } = string.Empty;
 }
 
 public sealed class DatabaseSettings
