@@ -155,6 +155,81 @@
                 </DataGrid>
             </TabItem>
 
+            <TabItem Header="Scripts manuels PERL" Height="20" VerticalAlignment="Top">
+                <Grid Margin="14">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                               Margin="0,0,0,10"
+                               TextWrapping="Wrap"
+                               Text="Générez des scripts SQL avec ora2pg. Sélectionnez l’exécutable, son fichier de configuration et le dossier de sortie." />
+
+                    <Grid Grid.Row="1" Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,5,10,5" VerticalAlignment="Center" Text="Exécutable ora2pg" />
+                        <TextBox x:Name="Ora2PgExecutableTextBox" Grid.Row="0" Grid.Column="1" Margin="0,3" Text="ora2pg" />
+                        <Button Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" Margin="8,3,0,3" Padding="10,4" Content="Parcourir..." Click="BrowseOra2PgExecutableButton_Click" />
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,5,10,5" VerticalAlignment="Center" Text="Configuration ora2pg" />
+                        <TextBox x:Name="Ora2PgConfigFileTextBox" Grid.Row="1" Grid.Column="1" Margin="0,3" />
+                        <Button Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Margin="8,3,0,3" Padding="10,4" Content="Parcourir..." Click="BrowseOra2PgConfigButton_Click" />
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,5,10,5" VerticalAlignment="Center" Text="Dossier de sortie" />
+                        <TextBox x:Name="ScriptsOutputDirectoryTextBox" Grid.Row="2" Grid.Column="1" Margin="0,3" />
+                        <Button Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Margin="8,3,0,3" Padding="10,4" Content="Parcourir..." Click="BrowseScriptsOutputDirectoryButton_Click" />
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" Margin="0,5,10,5" VerticalAlignment="Center" Text="Type d’export" />
+                        <ComboBox x:Name="Ora2PgExportTypeComboBox" Grid.Row="3" Grid.Column="1" Margin="0,3" SelectedValuePath="Content" SelectedValue="TABLE">
+                            <ComboBoxItem Content="TABLE" />
+                            <ComboBoxItem Content="VIEW" />
+                            <ComboBoxItem Content="SEQUENCE" />
+                            <ComboBoxItem Content="FUNCTION" />
+                            <ComboBoxItem Content="PROCEDURE" />
+                            <ComboBoxItem Content="PACKAGE" />
+                            <ComboBoxItem Content="TRIGGER" />
+                            <ComboBoxItem Content="TYPE" />
+                            <ComboBoxItem Content="GRANT" />
+                            <ComboBoxItem Content="SYNONYM" />
+                            <ComboBoxItem Content="DATA" />
+                            <ComboBoxItem Content="INSERT" />
+                            <ComboBoxItem Content="COPY" />
+                        </ComboBox>
+                        <Button x:Name="RefreshScriptsButton" Grid.Row="3" Grid.Column="2" Margin="8,3,0,3" Padding="10,4" Content="Actualiser la liste" Click="RefreshScriptsButton_Click" />
+                        <Button x:Name="CreateScriptsButton" Grid.Row="3" Grid.Column="3" Margin="8,3,0,3" Padding="14,4" Background="#0078D4" Foreground="White" Content="Create Scripts" Click="CreateScriptsButton_Click" />
+                    </Grid>
+
+                    <DataGrid x:Name="ScriptsDataGrid"
+                              Grid.Row="2"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              CanUserAddRows="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Nom" Binding="{Binding Name}" Width="1.2*" />
+                            <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="Auto" />
+                            <DataGridTextColumn Header="Emplacement" Binding="{Binding Location}" Width="2*" />
+                            <DataGridTextColumn Header="Taille" Binding="{Binding Size}" Width="Auto" />
+                            <DataGridTextColumn Header="Modifié le" Binding="{Binding Modified, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Width="Auto" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
             <TabItem Header="Log">
                 <ListBox x:Name="LogListBox"
                          Margin="14"

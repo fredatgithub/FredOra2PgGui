@@ -1,6 +1,9 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Reflection;
+using Microsoft.Win32;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -13,6 +16,7 @@ public partial class MainWindow : Window
   private readonly SettingsService _settingsService = new();
   private readonly DatabaseMetadataService _metadataService = new();
   private readonly ObservableCollection<string> _logEntries = [];
+  private readonly ObservableCollection<GeneratedScript> _generatedScripts = [];
   private static readonly Brush PendingActionBrush = new SolidColorBrush(Color.FromRgb(0, 120, 212));
   private static readonly Brush SuccessfulActionBrush = new SolidColorBrush(Color.FromRgb(40, 167, 69));
   private static readonly Brush FailedActionBrush = new SolidColorBrush(Color.FromRgb(220, 53, 69));
@@ -30,6 +34,7 @@ public partial class MainWindow : Window
     }
 
     DataContext = this;
+    ScriptsDataGrid.ItemsSource = _generatedScripts;
 
     LoggingService.Initialize();
     LoggingService.LogMessage += AddLogEntry;
@@ -43,6 +48,7 @@ public partial class MainWindow : Window
       var settings = _settingsService.Load();
       ApplySettings(settings);
       ApplyWindowSettings(settings);
+      RefreshGeneratedScripts(false);
       _settingsLoaded = true;
     }
     catch (Exception exception)
@@ -94,6 +100,176 @@ public partial class MainWindow : Window
         "Enregistrement des paramètres",
         MessageBoxButton.OK,
         MessageBoxImage.Error);
+    }
+  }
+
+  private void BrowseOra2PgExecutableButton_Click(object sender, RoutedEventArgs e)
+  {
+    var dialog = new OpenFileDialog
+    {
+      Title = "Sélectionner l’exécutable ora2pg",
+      Filter = "Exécutables|*.exe;*.com|Tous les fichiers|*.*",
+      CheckFileExists = true
+    };
+
+    if (dialog.ShowDialog(this) == true)
+    {
+      Ora2PgExecutableTextBox.Text = dialog.FileName;
+    }
+  }
+
+  private void BrowseOra2PgConfigButton_Click(object sender, RoutedEventArgs e)
+  {
+    var dialog = new OpenFileDialog
+    {
+      Title = "Sélectionner le fichier de configuration ora2pg",
+      Filter = "Configuration ora2pg|*.conf;*.cfg|Tous les fichiers|*.*",
+      CheckFileExists = true
+    };
+
+    if (dialog.ShowDialog(this) == true)
+    {
+      Ora2PgConfigFileTextBox.Text = dialog.FileName;
+    }
+  }
+
+  private void BrowseScriptsOutputDirectoryButton_Click(object sender, RoutedEventArgs e)
+  {
+    var dialog = new OpenFolderDialog
+    {
+      Title = "Sélectionner le dossier de sortie des scripts",
+      FolderName = ScriptsOutputDirectoryTextBox.Text
+    };
+
+    if (dialog.ShowDialog(this) == true)
+    {
+      ScriptsOutputDirectoryTextBox.Text = dialog.FolderName;
+      RefreshGeneratedScripts(true);
+    }
+  }
+
+  private void RefreshScriptsButton_Click(object sender, RoutedEventArgs e)
+  {
+    RefreshGeneratedScripts(true);
+  }
+
+  private async void CreateScriptsButton_Click(object sender, RoutedEventArgs e)
+  {
+    CreateScriptsButton.Background = PendingActionBrush;
+    PleaseWaitWindow? waitWindow = null;
+
+    try
+    {
+      var executable = Ora2PgExecutableTextBox.Text.Trim();
+      var configFile = Ora2PgConfigFileTextBox.Text.Trim();
+      var outputDirectory = ScriptsOutputDirectoryTextBox.Text.Trim();
+      var exportType = (Ora2PgExportTypeComboBox.SelectedItem as ComboBoxItem)?.Content?.ToString();
+
+      if (string.IsNullOrWhiteSpace(executable))
+      {
+        throw new InvalidOperationException("Sélectionnez l’exécutable ora2pg ou indiquez son nom s’il est accessible dans le PATH.");
+      }
+
+      if (Path.IsPathRooted(executable) && !File.Exists(executable))
+      {
+        throw new FileNotFoundException("L’exécutable ora2pg sélectionné est introuvable.", executable);
+      }
+
+      if (string.IsNullOrWhiteSpace(configFile) || !File.Exists(configFile))
+      {
+        throw new FileNotFoundException("Sélectionnez un fichier de configuration ora2pg existant.", configFile);
+      }
+
+      if (string.IsNullOrWhiteSpace(outputDirectory))
+      {
+        throw new InvalidOperationException("Sélectionnez le dossier de sortie des scripts.");
+      }
+
+      if (string.IsNullOrWhiteSpace(exportType))
+      {
+        throw new InvalidOperationException("Sélectionnez un type d’export ora2pg.");
+      }
+
+      Directory.CreateDirectory(outputDirectory);
+      var outputPath = Path.Combine(
+        outputDirectory,
+        $"ora2pg-{exportType}-{DateTime.Now:yyyyMMddHHmmssfff}-{Guid.NewGuid():N}.sql");
+      var startInfo = new ProcessStartInfo
+      {
+        FileName = executable,
+        WorkingDirectory = outputDirectory,
+        UseShellExecute = false,
+        RedirectStandardOutput = true,
+        RedirectStandardError = true,
+        CreateNoWindow = true
+      };
+      startInfo.ArgumentList.Add("--conf");
+      startInfo.ArgumentList.Add(configFile);
+      startInfo.ArgumentList.Add("--type");
+      startInfo.ArgumentList.Add(exportType);
+      startInfo.ArgumentList.Add("--out");
+      startInfo.ArgumentList.Add(outputPath);
+
+      LoggingService.Info($"Démarrage d’ora2pg pour l’export {exportType}.");
+      CreateScriptsButton.IsEnabled = false;
+      RefreshScriptsButton.IsEnabled = false;
+      waitWindow = new PleaseWaitWindow { Owner = this };
+      waitWindow.Show();
+      IsEnabled = false;
+
+      using var process = new Process { StartInfo = startInfo };
+      if (!process.Start())
+      {
+        throw new InvalidOperationException("Le processus ora2pg n’a pas pu démarrer.");
+      }
+
+      var standardOutputTask = process.StandardOutput.ReadToEndAsync();
+      var standardErrorTask = process.StandardError.ReadToEndAsync();
+      await process.WaitForExitAsync();
+      var standardOutput = await standardOutputTask;
+      var standardError = await standardErrorTask;
+      if (process.ExitCode != 0)
+      {
+        var details = string.Join(
+          Environment.NewLine,
+          new[] { standardError.Trim(), standardOutput.Trim() }.Where(text => !string.IsNullOrWhiteSpace(text)));
+        throw new InvalidOperationException(
+          $"ora2pg a terminé avec le code {process.ExitCode}.{Environment.NewLine}{details}".Trim());
+      }
+
+      if (!File.Exists(outputPath))
+      {
+        throw new InvalidOperationException(
+          $"ora2pg s’est terminé sans erreur, mais le script attendu n’a pas été créé : {outputPath}");
+      }
+
+      RefreshGeneratedScripts(false);
+      CreateScriptsButton.Background = SuccessfulActionBrush;
+      LoggingService.Info($"Script ora2pg créé : {outputPath}");
+      MessageBox.Show(
+        this,
+        $"Script créé avec succès :{Environment.NewLine}{outputPath}",
+        "Création des scripts",
+        MessageBoxButton.OK,
+        MessageBoxImage.Information);
+    }
+    catch (Exception exception)
+    {
+      CreateScriptsButton.Background = FailedActionBrush;
+      LoggingService.Error("Échec de la génération du script ora2pg.", exception);
+      MessageBox.Show(
+        this,
+        $"Le script n’a pas pu être créé.{Environment.NewLine}{Environment.NewLine}{exception.Message}",
+        "Création des scripts",
+        MessageBoxButton.OK,
+        MessageBoxImage.Error);
+    }
+    finally
+    {
+      waitWindow?.Close();
+      IsEnabled = true;
+      CreateScriptsButton.IsEnabled = true;
+      RefreshScriptsButton.IsEnabled = true;
     }
   }
 
@@ -233,7 +409,11 @@ public partial class MainWindow : Window
     return new AppSettings
     {
       Oracle = CaptureOracleSettings(),
-      PostgreSql = CapturePostgreSqlSettings()
+      PostgreSql = CapturePostgreSqlSettings(),
+      Ora2PgExecutable = Ora2PgExecutableTextBox.Text.Trim(),
+      Ora2PgConfigFile = Ora2PgConfigFileTextBox.Text.Trim(),
+      ScriptsOutputDirectory = ScriptsOutputDirectoryTextBox.Text.Trim(),
+      Ora2PgExportType = (Ora2PgExportTypeComboBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "TABLE"
     };
   }
 
@@ -276,6 +456,11 @@ public partial class MainWindow : Window
 
   private void ApplySettings(AppSettings settings)
   {
+    Ora2PgExecutableTextBox.Text = settings.Ora2PgExecutable;
+    Ora2PgConfigFileTextBox.Text = settings.Ora2PgConfigFile;
+    ScriptsOutputDirectoryTextBox.Text = settings.ScriptsOutputDirectory;
+    Ora2PgExportTypeComboBox.SelectedValue = settings.Ora2PgExportType;
+
     OracleHostTextBox.Text = settings.Oracle.Host;
     OraclePortTextBox.Text = settings.Oracle.Port > 0 ? settings.Oracle.Port.ToString(CultureInfo.InvariantCulture) : "1521";
     OracleServiceTextBox.Text = settings.Oracle.Database;
@@ -362,6 +547,77 @@ public partial class MainWindow : Window
     {
       LogListBox.ScrollIntoView(LogListBox.Items[LogListBox.Items.Count - 1]);
     }
+  }
+
+  private void RefreshGeneratedScripts(bool showErrors)
+  {
+    var outputDirectory = ScriptsOutputDirectoryTextBox.Text.Trim();
+    if (string.IsNullOrWhiteSpace(outputDirectory))
+    {
+      _generatedScripts.Clear();
+      return;
+    }
+
+    try
+    {
+      _generatedScripts.Clear();
+      if (!Directory.Exists(outputDirectory))
+      {
+        return;
+      }
+
+      foreach (var path in Directory.EnumerateFiles(outputDirectory, "*.sql", SearchOption.AllDirectories)
+                 .OrderByDescending(File.GetLastWriteTime))
+      {
+        var fileInfo = new FileInfo(path);
+        var name = fileInfo.Name;
+        var type = "SQL";
+        if (name.StartsWith("ora2pg-", StringComparison.OrdinalIgnoreCase))
+        {
+          var typeEnd = name.IndexOf('-', "ora2pg-".Length);
+          if (typeEnd > "ora2pg-".Length)
+          {
+            type = name["ora2pg-".Length..typeEnd];
+          }
+        }
+
+        _generatedScripts.Add(new GeneratedScript
+        {
+          Name = name,
+          Type = type,
+          Location = fileInfo.FullName,
+          Size = FormatFileSize(fileInfo.Length),
+          Modified = fileInfo.LastWriteTime
+        });
+      }
+    }
+    catch (Exception exception)
+    {
+      LoggingService.Error("Impossible d’actualiser la liste des scripts.", exception);
+      if (showErrors)
+      {
+        MessageBox.Show(
+          this,
+          $"La liste des scripts n’a pas pu être actualisée.{Environment.NewLine}{Environment.NewLine}{exception.Message}",
+          "Liste des scripts",
+          MessageBoxButton.OK,
+          MessageBoxImage.Error);
+      }
+    }
+  }
+
+  private static string FormatFileSize(long size)
+  {
+    string[] units = ["o", "Ko", "Mo", "Go", "To"];
+    var value = (double)size;
+    var unitIndex = 0;
+    while (value >= 1024 && unitIndex < units.Length - 1)
+    {
+      value /= 1024;
+      unitIndex++;
+    }
+
+    return $"{value:0.##} {units[unitIndex]}";
   }
 
   private void LogListBox_PreviewKeyDown(object sender, KeyEventArgs e)

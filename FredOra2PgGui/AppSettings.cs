@@ -11,6 +11,10 @@ public sealed class AppSettings
   public bool IsMaximized { get; set; }
   public DatabaseSettings Oracle { get; set; } = new();
   public DatabaseSettings PostgreSql { get; set; } = new();
+  public string Ora2PgExecutable { get; set; } = "ora2pg";
+  public string Ora2PgConfigFile { get; set; } = string.Empty;
+  public string ScriptsOutputDirectory { get; set; } = string.Empty;
+  public string Ora2PgExportType { get; set; } = "TABLE";
 }
 
 public sealed class DatabaseSettings
@@ -41,4 +45,13 @@ public sealed class DatabaseObjectPair
 {
   public string SourceName { get; set; } = string.Empty;
   public string TargetName { get; set; } = string.Empty;
+}
+
+public sealed class GeneratedScript
+{
+  public string Name { get; set; } = string.Empty;
+  public string Type { get; set; } = string.Empty;
+  public string Location { get; set; } = string.Empty;
+  public string Size { get; set; } = string.Empty;
+  public DateTime Modified { get; set; }
 }
