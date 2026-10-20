@@ -240,9 +240,9 @@
                     </Grid.RowDefinitions>
 
                     <TextBlock Grid.Row="0"
-                               Margin="0,0,0,10"
-                               TextWrapping="Wrap"
-                               Text="Générez automatiquement les scripts de migration à partir de la connexion Oracle de l’onglet Connexions. La création de la base cible est produite séparément ; les autres scripts sont générés par ora2pg." />
+                           Margin="0,0,0,10"
+                           TextWrapping="Wrap"
+                           Text="Générez directement des scripts PostgreSQL à partir des métadonnées et des données de la connexion Oracle. Cette génération est intégrée à l’application et n’utilise ni Ora2Pg ni Perl." />
 
                     <Grid Grid.Row="1" Margin="0,0,0,10">
                         <Grid.ColumnDefinitions>
@@ -264,11 +264,6 @@
                             <CheckBox x:Name="AutoTablesCheckBox" Margin="8,4" Content="Tables" IsChecked="True" />
                             <CheckBox x:Name="AutoSequencesCheckBox" Margin="8,4" Content="Séquences" IsChecked="True" />
                             <CheckBox x:Name="AutoViewsCheckBox" Margin="8,4" Content="Vues" IsChecked="True" />
-                            <CheckBox x:Name="AutoTypesCheckBox" Margin="8,4" Content="Types" IsChecked="True" />
-                            <CheckBox x:Name="AutoFunctionsCheckBox" Margin="8,4" Content="Fonctions" IsChecked="True" />
-                            <CheckBox x:Name="AutoProceduresCheckBox" Margin="8,4" Content="Procédures" IsChecked="True" />
-                            <CheckBox x:Name="AutoPackagesCheckBox" Margin="8,4" Content="Packages" IsChecked="True" />
-                            <CheckBox x:Name="AutoTriggersCheckBox" Margin="8,4" Content="Déclencheurs" IsChecked="True" />
                             <CheckBox x:Name="AutoInsertDataCheckBox" Margin="8,4" Content="Insertion des données (INSERT)" IsChecked="True" />
                             <Button x:Name="CreateAutoScriptsButton"
                                     Margin="8,4"
